@@ -1,0 +1,40 @@
+
+ "ConnectionStrings": {
+   //"DefaultConnection": "Server=.;Database=BookingAppDB;Trusted_Connection=True;TrustServerCertificate=True;"
+   "DefaultConnection": "server=66.165.248.146;database=BookingAppDB;uid=BookGB;pwd=Mobile@Book1231;TrustServerCertificate=True;timeout=20000"
+
+ },
+
+Create a DbContext Class
+
+Register DbContext in Startup.cs (or Program.cs in .NET 6+)
+builder.Services.AddDbContext<BookingAppContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    // Uncomment for lazy loading proxies if needed
+    // options.UseLazyLoadingProxies(true);
+});
+
+Add-Migration InitialCreate
+Add-Migration MigrationName -OutputDir "Data\Migrations"
+
+
+Scaffold-DbContext "Server=.;Database=BudgetCareDB;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Data/Entities -ContextDir Data/DbContext -Context BudgetCareDBContext -f
+
+
+public partial class BudgetCareDBContext : DbContext
+{
+	private readonly IConfiguration _config;
+
+	public BudgetCareDBContext()
+    {
+    }
+
+    public BudgetCareDBContext(DbContextOptions<BudgetCareDBContext> options, IConfiguration config)
+        : base(options)
+    {
+		_config = config;
+
+	}
+	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	=> optionsBuilder.UseSqlServer(_config.GetConnectionString("DefaultConnection"));
