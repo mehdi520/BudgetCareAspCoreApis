@@ -43,11 +43,12 @@ namespace BudgetCareApis.Controllers
 			return Ok(res);
 		}
 
-		[HttpGet]
+		[HttpPost]
 		public async Task<IActionResult> addOrUpdateCat(CategoryDataModel req)
 		{
 			var res = new BaseResponseModel();
-			//var loginuserId = getLoggedinUserId();
+			var loginuserId = getLoggedinUserId();
+			req.UserId = loginuserId;
 			res = await _userService.addUpdateCatagories(req);
 			return Ok(res);
 		}

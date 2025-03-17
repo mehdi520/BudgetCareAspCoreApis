@@ -44,6 +44,7 @@ namespace BudgetCareApis.Services.repository
 						var cat = new Category();
 						cat.Title = req.Title;
 						cat.IsDeleted = false;
+						cat.Description = req.Description;
 						cat.UserId = req.UserId;
 						cat.CreatedAt = DateTime.Now;
 						cat.UpdatedAt = DateTime.Now;
@@ -58,8 +59,8 @@ namespace BudgetCareApis.Services.repository
 				{
 					var existingCat = _context.Categories.Find(req.Id);
 					if (existingCat != null && existingCat.UserId == req.UserId) {
-						var sameTitleCat = _context.Categories.Where(x => x.Title == req.Title && x.IsDeleted == false && x.UserId == req.UserId).FirstOrDefault();
-						if (existingCat != null)
+						var sameTitleCat = _context.Categories.Where(x => x.Title == req.Title && x.IsDeleted == false && x.UserId == req.UserId && x.Id != req.Id).FirstOrDefault();
+						if (sameTitleCat != null)
 						{
 							res.Status = false;
 							res.Message = "Already exist same category.Please use different title";
@@ -69,6 +70,7 @@ namespace BudgetCareApis.Services.repository
 						{
 
 							existingCat.Title = req.Title;
+							existingCat.Description = req.Description;
 							existingCat.UpdatedAt = DateTime.Now;
 							_context.SaveChanges();
 
@@ -162,7 +164,7 @@ namespace BudgetCareApis.Services.repository
 					_context.SaveChanges();
 
 					res.Status = true;
-					res.Message = "Expense saved successfully";
+					res.Message = "Income saved successfully";
 
 				}
 				else
@@ -174,12 +176,13 @@ namespace BudgetCareApis.Services.repository
 
 						existingCat.Amount = req.Amount;
 						existingCat.Desciption = req.Desciption;
+						existingCat.Date = req.Date;
 
 						existingCat.UpdatedAt = DateTime.Now;
 						_context.SaveChanges();
 
 						res.Status = true;
-						res.Message = "Expense updated successfully";
+						res.Message = "Income updated successfully";
 
 					}
 
@@ -290,6 +293,9 @@ namespace BudgetCareApis.Services.repository
 						userData.Id = cat.Id;	
 						userData.Title = cat.Title;
 						userData.Description = cat.Description;
+						userData.UserId = cat.UserId;
+						userData.CreatedAt = cat.CreatedAt;
+						userData.UpdatedAt = cat.UpdatedAt;
 						catList.Add(userData);
 					}
 				
@@ -316,7 +322,7 @@ namespace BudgetCareApis.Services.repository
 			{
 				var query = _context.Expenses.AsQueryable();
 				query = query.Where(i => i.UserId == user_id);
-				query = query.Where(i => i.CreatedAt >= req.startDate && i.CreatedAt <= req.endDate);
+				query = query.Where(i => i.Date >= req.startDate && i.Date <= req.endDate);
 				if (req.categoryId > 0)
 				{
 					query = query.Where(i => i.CatId == req.categoryId);
@@ -339,11 +345,16 @@ namespace BudgetCareApis.Services.repository
 					userData.Desciption = cat.Description;
 					userData.Amount = cat.Amount;
 					userData.CreatedAt = cat.CreatedAt;
-
+					userData.Date = cat.Date;
+					userData.CatId = cat.CatId;
+					userData.UserId = cat.UserId;
+					userData.UpdatedAt = cat.UpdatedAt;
 					catList.Add(userData);
 				}
 
 				res.data = catList;
+				res.totalAmount = catList.Sum(item => item.Amount);
+
 				res.TotalPage = totalPages;
 				res.Status = true;
 				res.Message = "fetch successfully";
@@ -367,7 +378,7 @@ namespace BudgetCareApis.Services.repository
 			{
 				var query = _context.Incomes.AsQueryable();
 				query = query.Where(i => i.UserId == user_id);
-				query = query.Where(i => i.CreatedAt >= req.startDate && i.CreatedAt <= req.endDate);
+				query = query.Where(i => i.Date >= req.startDate && i.Date <= req.endDate);
 				if (req.categoryId > 0)
 				{
 					query = query.Where(i => i.CatId == req.categoryId);
@@ -390,12 +401,17 @@ namespace BudgetCareApis.Services.repository
 						userData.Desciption = cat.Desciption;
 						userData.Amount = cat.Amount;
 						userData.CreatedAt = cat.CreatedAt;
+					userData.Date = cat.Date;
+					userData.CatId = cat.CatId;
+					userData.UserId = cat.UserId;
+					userData.UpdatedAt = cat.UpdatedAt;
 
 						catList.Add(userData);
 					}
 
 					res.data = catList;
-					res.TotalPage = totalPages;                
+				res.totalAmount = catList.Sum(item => item.Amount);
+				res.TotalPage = totalPages;                
 					res.Status = true;
 					res.Message = "fetch successfully";
 				

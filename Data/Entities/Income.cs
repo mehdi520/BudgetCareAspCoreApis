@@ -15,9 +15,9 @@ public partial class Income
 
     public string? Desciption { get; set; }
 
-    public DateTimeOffset Date { get; set; }
+    public DateOnly Date { get; set; }
 
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-    public DateTimeOffset UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }

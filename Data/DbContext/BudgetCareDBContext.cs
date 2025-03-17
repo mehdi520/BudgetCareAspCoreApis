@@ -10,19 +10,20 @@ public partial class BudgetCareDBContext : DbContext
 	private readonly IConfiguration _config;
 
 	public BudgetCareDBContext()
-    {
-    }
+	{
+	}
 
-    public BudgetCareDBContext(DbContextOptions<BudgetCareDBContext> options, IConfiguration config)
-        : base(options)
-    {
+	public BudgetCareDBContext(DbContextOptions<BudgetCareDBContext> options, IConfiguration config)
+		: base(options)
+	{
 		_config = config;
 
 	}
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	=> optionsBuilder.UseSqlServer(_config.GetConnectionString("DefaultConnection"));
 
-	public virtual DbSet<Category> Categories { get; set; }
+
+    public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Expense> Expenses { get; set; }
 
@@ -39,7 +40,9 @@ public partial class BudgetCareDBContext : DbContext
             entity.ToTable("Category");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("createdAt");
             entity.Property(e => e.Description)
                 .HasMaxLength(3500)
                 .HasColumnName("description");
@@ -47,7 +50,9 @@ public partial class BudgetCareDBContext : DbContext
             entity.Property(e => e.Title)
                 .HasMaxLength(1000)
                 .HasColumnName("title");
-            entity.Property(e => e.UpdatedAt).HasColumnName("updatedAt");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("updatedAt");
             entity.Property(e => e.UserId).HasColumnName("userId");
 
             entity.HasOne(d => d.User).WithMany(p => p.Categories)
@@ -66,12 +71,16 @@ public partial class BudgetCareDBContext : DbContext
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("amount");
             entity.Property(e => e.CatId).HasColumnName("catId");
-            entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("createdAt");
             entity.Property(e => e.Date).HasColumnName("date");
             entity.Property(e => e.Description)
                 .HasMaxLength(2000)
                 .HasColumnName("description");
-            entity.Property(e => e.UpdatedAt).HasColumnName("updatedAt");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("updatedAt");
             entity.Property(e => e.UserId).HasColumnName("userId");
         });
 
@@ -86,12 +95,16 @@ public partial class BudgetCareDBContext : DbContext
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("amount");
             entity.Property(e => e.CatId).HasColumnName("catId");
-            entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("createdAt");
             entity.Property(e => e.Date).HasColumnName("date");
             entity.Property(e => e.Desciption)
                 .HasMaxLength(2000)
                 .HasColumnName("desciption");
-            entity.Property(e => e.UpdatedAt).HasColumnName("updatedAt");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("updatedAt");
             entity.Property(e => e.UserId).HasColumnName("userId");
         });
 
@@ -102,7 +115,9 @@ public partial class BudgetCareDBContext : DbContext
             entity.ToTable("User");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("createdAt");
             entity.Property(e => e.Email)
                 .HasMaxLength(200)
                 .HasColumnName("email");
@@ -118,7 +133,9 @@ public partial class BudgetCareDBContext : DbContext
             entity.Property(e => e.Phone)
                 .HasMaxLength(30)
                 .HasColumnName("phone");
-            entity.Property(e => e.UpdatedAt).HasColumnName("updatedAt");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("updatedAt");
         });
 
         OnModelCreatingPartial(modelBuilder);

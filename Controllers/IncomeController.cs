@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using BudgetCareApis.Models.ReqModels;
 using BudgetCareApis.Models.Dtos;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BudgetCareApis.Controllers
 {
@@ -27,7 +28,7 @@ namespace BudgetCareApis.Controllers
 			Configuration = configuration;
 		}
 
-		[HttpGet]
+		[HttpPost]
 		public async Task<IActionResult> GetUserIncome(GetTransReqModel req)
 		{
 			var res = new GetTransResModel();
@@ -45,12 +46,37 @@ namespace BudgetCareApis.Controllers
 			return Ok(res);
 		}
 
-		[HttpGet]
+		[HttpPost]
 		public async Task<IActionResult> addOrUpdateIncome(TransDataModel req)
 		{
 			var res = new BaseResponseModel();
-			//var loginuserId = getLoggedinUserId();
-			res = await _userService.addUpdateIncome(req);
+			if (req.Amount < 1)
+			{
+				res.Status = false;
+				res.Message = "Amount is required";
+			}
+			else if (req.Desciption.IsNullOrEmpty())
+			{
+				res.Status = false;
+				res.Message = "Description is required";
+			}
+			else if (req.CatId == 0)
+			{
+				res.Status = false;
+				res.Message = "Category is required";
+			}
+			else if (req.Date == default(DateOnly))
+			{
+				res.Status = false;
+				res.Message = "Date is required";
+			}
+			else
+			{
+
+				var loginuserId = getLoggedinUserId();
+				req.UserId = loginuserId;
+				res = await _userService.addUpdateIncome(req);
+			}
 			return Ok(res);
 		}
 	}
