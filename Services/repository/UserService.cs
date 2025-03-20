@@ -198,6 +198,40 @@ namespace BudgetCareApis.Services.repository
 			return Task.FromResult(res);
 		}
 
+		public Task<BaseResponseModel> changePassword(ChnagePassReqModel req)
+		{
+			var res = new BaseResponseModel();
+			try
+			{
+				var user = _context.Users.Find(req.userId);
+				if (user != null)
+				{
+					if (user.Password != req.oldPass)
+					{
+						res.Status = false;
+						res.Message = "Current password is not correct.";
+					}
+					else
+					{
+						user.Password = req.newPass;
+						user.UpdatedAt = DateTime.Now;
+						_context.SaveChanges();
+						res.Status = true;
+						res.Message = "Password changed successfully";
+					}
+					
+
+				}
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.ToString();
+
+			}
+			return Task.FromResult(res);
+		}
+
 		public Task<BaseResponseModel> delCatagory(int cat_id)
 		{
 			var res = new BaseResponseModel();
@@ -466,6 +500,113 @@ namespace BudgetCareApis.Services.repository
 			return Task.FromResult(res);
 		}
 
+		public async Task<GetGraphResModel> getUserGraphData(int userId)
+		{
+			var res = new GetGraphResModel();
+
+			try
+			{
+				var currentYear = DateTime.Now.Year;
+				// Get the income data grouped by month for the current year
+				var incomeData = await _context.Incomes
+					.Where(i => i.UserId == userId && i.Date.Year == currentYear)
+					.GroupBy(i => i.Date.Month)
+					.Select(g => new
+					{
+						Month = g.Key,
+						TotalIncome = g.Sum(i => i.Amount)
+					})
+					.ToListAsync();
+
+				// Get the expense data grouped by month for the current year
+				var expenseData = await _context.Expenses
+					.Where(e => e.UserId == userId && e.Date.Year == currentYear)
+					.GroupBy(e => e.Date.Month)
+					.Select(g => new
+					{
+						Month = g.Key,
+						TotalExpense = g.Sum(e => e.Amount)
+					})
+					.ToListAsync();
+				var graphData = new List<GraphDataModel>();
+				for (int month = 1; month <= 12; month++)
+				{
+					var income = incomeData.FirstOrDefault(i => i.Month == month)?.TotalIncome ?? 0m;
+					var expense = expenseData.FirstOrDefault(e => e.Month == month)?.TotalExpense ?? 0m;
+
+					graphData.Add(new GraphDataModel
+					{
+						month = month,
+						totalIncome = income,
+						totalExpens = expense
+					});
+				}
+
+				res.Status = true;
+				res.Message = "";
+				res.data = graphData;
+
+			}
+			catch (Exception ex)
+			{
+
+				res.Status = false;
+				res.Message = ex.Message;
+			}
+
+			return res;
+		}
+
+		public async Task<GetTotalsResModel> getUserSummary(int userId)
+		{
+			var res = new GetTotalsResModel();
+			try
+			{
+				var currentYear = DateTime.Now.Year;
+				var currentMonth = DateTime.Now.Month;
+				var currentDate = DateTime.Now.Date;
+
+				// Get the total income for the current month
+				var totalThisMonthIncome = await _context.Incomes
+					.Where(i => i.UserId == userId && i.Date.Year == currentYear && i.Date.Month == currentMonth)
+					.SumAsync(i => i.Amount);
+
+				// Get the total expense for the current month
+				var totalThisMonthExpense = await _context.Expenses
+					.Where(e => e.UserId == userId && e.Date.Year == currentYear && e.Date.Month == currentMonth)
+					.SumAsync(e => e.Amount);
+
+				// Get the total income for the current year
+				var totalThisYearIncome = await _context.Incomes
+					.Where(i => i.UserId == userId && i.Date.Year == currentYear)
+					.SumAsync(i => i.Amount);
+
+				// Get the total expense for the current year
+				var totalThisYearExpense = await _context.Expenses
+					.Where(e => e.UserId == userId && e.Date.Year == currentYear)
+					.SumAsync(e => e.Amount);
+
+				res.data = new TotalsDataModel
+				{
+					totalThisMonthIncome = totalThisMonthIncome,
+					totalThisMonthExpense = totalThisMonthExpense,
+					totalThisYearIncome = totalThisYearIncome,
+					totalThisYearExpense = totalThisYearExpense
+				};
+
+				res.Status = true;
+				res.Message = "";
+				
+
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.Message;
+			}
+			return res;
+		}
+
 		public Task<LoginResModel> login(AuthenticationReqModel req)
 		{
 			var res = new LoginResModel();
@@ -543,6 +684,33 @@ namespace BudgetCareApis.Services.repository
 			}
 
 			return await Task.FromResult(res);
+		}
+
+		public Task<BaseResponseModel> updateProfile(UserViewModel req)
+		{
+			var res = new BaseResponseModel();
+			try
+			{
+				var user = _context.Users.Find(req.Id);
+				if (user != null)
+				{
+					user.Name = req.Name;
+					user.Phone = req.Phone;
+					user.UpdatedAt = DateTime.Now;
+					_context.SaveChanges();
+					res.Status = true;
+					res.Message = "Profile saved successfully";
+
+				}
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.ToString();
+			
+			}
+			return Task.FromResult(res);
+
 		}
 	}
 }

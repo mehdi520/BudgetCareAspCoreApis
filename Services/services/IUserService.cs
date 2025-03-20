@@ -1,6 +1,7 @@
 ﻿using BudgetCareApis.Data.Entities;
 using BudgetCareApis.Models.Dtos;
 using BudgetCareApis.Models.Dtos.Category;
+using BudgetCareApis.Models.Dtos.Users;
 using BudgetCareApis.Models.ReqModels;
 using BudgetCareApis.Models.ReqModels.Users;
 using BudgetCareApis.Models.ResModels;
@@ -27,6 +28,12 @@ namespace BudgetCareApis.Services.services
 		Task<GetTransResModel> getExpense(GetTransReqModel req, int user_id);
 		Task<BaseResponseModel> addUpdateExpense(TransDataModel req);
 		Task<BaseResponseModel> delExpense(int incomeId);
+		Task<BaseResponseModel> updateProfile(UserViewModel req);
+		Task<BaseResponseModel> changePassword(ChnagePassReqModel req);
+
+		Task<GetTotalsResModel> getUserSummary(int userId);
+		Task<GetGraphResModel> getUserGraphData(int userId);
+
 
 	}
 }
