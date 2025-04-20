@@ -1,6 +1,8 @@
 ﻿using BudgetCareApis.Models.Dtos.Category;
+using BudgetCareApis.Models.Dtos.Notes;
 using BudgetCareApis.Models.ResModels;
 using BudgetCareApis.Models.ResModels.Base;
+using BudgetCareApis.Models.ResModels.Notes;
 using BudgetCareApis.Models.ResModels.User;
 using BudgetCareApis.Services.services;
 using Microsoft.AspNetCore.Authorization;
@@ -52,6 +54,37 @@ namespace BudgetCareApis.Controllers
 			res = await _userService.addUpdateCatagories(req);
 			return Ok(res);
 		}
+
+
+
+		[HttpGet]
+		public async Task<IActionResult> GetUserNotesCats()
+		{
+			var res = new GetUserNoteBookResModel();
+			var loginuserId = getLoggedinUserId();
+			res = await _userService.getNoteCatagories(loginuserId);
+			return Ok(res);
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> delNoteCat(int catId)
+		{
+			var res = new BaseResponseModel();
+			//var loginuserId = getLoggedinUserId();
+			res = await _userService.delNoteCatagory(catId);
+			return Ok(res);
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> addOrUpdateNoteCat(NoteBookModel req)
+		{
+			var res = new BaseResponseModel();
+			var loginuserId = getLoggedinUserId();
+			req.UserId = loginuserId;
+			res = await _userService.addUpdateNoteCatagories(req);
+			return Ok(res);
+		}
+
 	}
 	
 }

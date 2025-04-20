@@ -22,4 +22,8 @@ public partial class User
     public DateTime UpdatedAt { get; set; }
 
     public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
+
+    public virtual ICollection<NoteBook> NoteBooks { get; set; } = new List<NoteBook>();
+
+    public virtual ICollection<Note> Notes { get; set; } = new List<Note>();
 }

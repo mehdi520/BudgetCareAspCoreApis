@@ -1,11 +1,13 @@
 ﻿using BudgetCareApis.Data.Entities;
 using BudgetCareApis.Models.Dtos;
 using BudgetCareApis.Models.Dtos.Category;
+using BudgetCareApis.Models.Dtos.Notes;
 using BudgetCareApis.Models.Dtos.Users;
 using BudgetCareApis.Models.ReqModels;
 using BudgetCareApis.Models.ReqModels.Users;
 using BudgetCareApis.Models.ResModels;
 using BudgetCareApis.Models.ResModels.Base;
+using BudgetCareApis.Models.ResModels.Notes;
 using BudgetCareApis.Models.ResModels.User;
 
 namespace BudgetCareApis.Services.services
@@ -20,6 +22,18 @@ namespace BudgetCareApis.Services.services
 		Task<GetUserCatsResModel> getCatagories(int user_id);
 		Task<BaseResponseModel> addUpdateCatagories(CategoryDataModel req);
 		Task<BaseResponseModel> delCatagory(int cat_id );
+
+
+		Task<GetUserNoteBookResModel> getNoteCatagories(int user_id);
+		Task<BaseResponseModel> addUpdateNoteCatagories(NoteBookModel req);
+		Task<BaseResponseModel> delNoteCatagory(int note_id);
+
+
+		Task<GetNotesResModel> getNotes(GetTransReqModel req, int user_id);
+		Task<BaseResponseModel> addUpdateNote(NoteDataModel req);
+		Task<BaseResponseModel> delNote(int note_id);
+
+
 
 		Task<GetTransResModel> getIncomes(GetTransReqModel req, int user_id);
 		Task<BaseResponseModel> addUpdateIncome(TransDataModel req);

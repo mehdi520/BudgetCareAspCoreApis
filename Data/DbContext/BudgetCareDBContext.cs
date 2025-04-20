@@ -21,16 +21,19 @@ public partial class BudgetCareDBContext : DbContext
 	}
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	=> optionsBuilder.UseSqlServer(_config.GetConnectionString("DefaultConnection"));
-
-
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Expense> Expenses { get; set; }
 
     public virtual DbSet<Income> Incomes { get; set; }
 
+    public virtual DbSet<Note> Notes { get; set; }
+
+    public virtual DbSet<NoteBook> NoteBooks { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
+ 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(entity =>
@@ -106,6 +109,43 @@ public partial class BudgetCareDBContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("updatedAt");
             entity.Property(e => e.UserId).HasColumnName("userId");
+        });
+
+        modelBuilder.Entity<Note>(entity =>
+        {
+            entity.Property(e => e.NoteId).HasColumnName("note_id");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+            entity.Property(e => e.Details).HasColumnName("details");
+            entity.Property(e => e.NoteBookId).HasColumnName("note_book_id");
+            entity.Property(e => e.Title).HasColumnName("title");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.NoteBook).WithMany(p => p.Notes)
+                .HasForeignKey(d => d.NoteBookId)
+                .HasConstraintName("FK_Notes_NoteBook");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Notes)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_Notes_User");
+        });
+
+        modelBuilder.Entity<NoteBook>(entity =>
+        {
+            entity.ToTable("NoteBook");
+
+            entity.Property(e => e.NoteBookId).HasColumnName("note_book_id");
+            entity.Property(e => e.IconColor)
+                .HasMaxLength(50)
+                .HasColumnName("icon_color");
+            entity.Property(e => e.Title).HasColumnName("title");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.User).WithMany(p => p.NoteBooks)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_NoteBook_User");
         });
 
         modelBuilder.Entity<User>(entity =>

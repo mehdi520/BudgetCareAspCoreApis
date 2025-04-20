@@ -2,15 +2,17 @@
 using BudgetCareApis.Data.Entities;
 using BudgetCareApis.Models.Dtos;
 using BudgetCareApis.Models.Dtos.Category;
+using BudgetCareApis.Models.Dtos.Notes;
 using BudgetCareApis.Models.Dtos.Users;
 using BudgetCareApis.Models.ReqModels;
 using BudgetCareApis.Models.ReqModels.Users;
 using BudgetCareApis.Models.ResModels;
 using BudgetCareApis.Models.ResModels.Base;
+using BudgetCareApis.Models.ResModels.Notes;
 using BudgetCareApis.Models.ResModels.User;
 using BudgetCareApis.Services.services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
+
 
 namespace BudgetCareApis.Services.repository
 {
@@ -198,6 +200,134 @@ namespace BudgetCareApis.Services.repository
 			return Task.FromResult(res);
 		}
 
+		public Task<BaseResponseModel> addUpdateNote(NoteDataModel req)
+		{
+			var res = new BaseResponseModel();
+			try
+			{
+				if (req.NoteId == 0)
+				{
+					var existingCat = _context.Notes.Where(x => x.Title == req.Title && x.UserId == req.UserId).FirstOrDefault();
+					if (existingCat != null)
+					{
+						res.Status = false;
+						res.Message = "Already exist same category.Please use different title";
+
+					}
+					else
+					{
+						var cat = new Note();
+						cat.Title = req.Title;
+						cat.NoteBookId = req.NoteBookId;
+						cat.Details = req.Details;
+						cat.UserId = req.UserId;
+						cat.CreatedAt = DateTime.Now;
+						_context.Add(cat);
+						_context.SaveChanges();
+
+						res.Status = true;
+						res.Message = "Note saved successfully";
+					}
+				}
+				else
+				{
+					var existingCat = _context.Notes.Find(req.NoteId);
+					if (existingCat != null && existingCat.UserId == req.UserId)
+					{
+						var sameTitleCat = _context.Notes.Where(x => x.Title == req.Title  && x.UserId == req.UserId && x.NoteId != req.NoteId).FirstOrDefault();
+						if (sameTitleCat != null)
+						{
+							res.Status = false;
+							res.Message = "Already exist same title.Please use different title";
+
+						}
+						else
+						{
+
+							existingCat.Title = req.Title;
+							existingCat.Details = req.Details;
+							_context.SaveChanges();
+
+							res.Status = true;
+							res.Message = "Note updated successfully";
+						}
+					}
+
+				}
+
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.Message;
+			}
+
+			return Task.FromResult(res);
+		}
+
+		public Task<BaseResponseModel> addUpdateNoteCatagories(NoteBookModel req)
+		{
+			var res = new BaseResponseModel();
+			try
+			{
+				if (req.NoteBookId == 0)
+				{
+					var existingCat = _context.NoteBooks.Where(x => x.Title == req.Title  && x.UserId == req.UserId).FirstOrDefault();
+					if (existingCat != null)
+					{
+						res.Status = false;
+						res.Message = "Already exist same note book.Please use different title";
+
+					}
+					else
+					{
+						var cat = new NoteBook();
+						cat.UserId = req.UserId;
+						cat.Title = req.Title;
+						cat.IconColor = req.IconColor;
+						_context.Add(cat);
+						_context.SaveChanges();
+
+						res.Status = true;
+						res.Message = "Notebook saved successfully";
+					}
+				}
+				else
+				{
+					var existingCat = _context.NoteBooks.Find(req.NoteBookId);
+					if (existingCat != null && existingCat.UserId == req.UserId)
+					{
+						var sameTitleCat = _context.NoteBooks.Where(x => x.Title == req.Title  && x.UserId == req.UserId && x.NoteBookId != req.NoteBookId).FirstOrDefault();
+						if (sameTitleCat != null)
+						{
+							res.Status = false;
+							res.Message = "Already exist same Title.Please use different title";
+
+						}
+						else
+						{
+
+							existingCat.Title = req.Title;
+							existingCat.IconColor = req.IconColor;
+							_context.SaveChanges();
+
+							res.Status = true;
+							res.Message = "Notebook updated successfully";
+						}
+					}
+
+				}
+
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.Message;
+			}
+
+			return Task.FromResult(res);
+		}
+
 		public Task<BaseResponseModel> changePassword(ChnagePassReqModel req)
 		{
 			var res = new BaseResponseModel();
@@ -302,6 +432,68 @@ namespace BudgetCareApis.Services.repository
 				res.Message = ex.Message.ToString();
 			}
 			return res;
+		}
+
+		public Task<BaseResponseModel> delNote(int note_id)
+		{
+			var res = new BaseResponseModel();
+			try
+			{
+
+				var user = _context.Notes.Find(note_id);
+
+				if (user == null)
+				{
+					res.Status = false;
+					res.Message = "Invalid Credentials. Please try again with correct credentials.";
+				}
+
+				else
+				{
+					_context.Remove(user);
+					_context.SaveChanges();
+					res.Status = true;
+					res.Message = "Note deleted successfully";
+				}
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.Message;
+			}
+
+			return Task.FromResult(res);
+		}
+
+		public Task<BaseResponseModel> delNoteCatagory(int note_id)
+		{
+			var res = new BaseResponseModel();
+			try
+			{
+
+				var user = _context.NoteBooks.Find(note_id);
+
+				if (user == null)
+				{
+					res.Status = false;
+					res.Message = "Invalid Credentials. Please try again with correct credentials.";
+				}
+
+				else
+				{
+					_context.Remove(user);
+					_context.SaveChanges();
+					res.Status = true;
+					res.Message = "Notebook deleted successfully";
+				}
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.Message;
+			}
+
+			return Task.FromResult(res);
 		}
 
 		public Task<GetUserCatsResModel> getCatagories(int user_id)
@@ -449,6 +641,101 @@ namespace BudgetCareApis.Services.repository
 					res.Status = true;
 					res.Message = "fetch successfully";
 				
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.Message;
+			}
+
+			return res;
+		}
+
+		public Task<GetUserNoteBookResModel> getNoteCatagories(int user_id)
+		{
+			var res = new GetUserNoteBookResModel();
+			try
+			{
+
+				var user = _context.NoteBooks.Where(x => x.UserId == user_id).ToList();
+
+				if (user == null)
+				{
+					res.Status = false;
+					res.Message = "Invalid Credentials. Please try again with correct credentials.";
+				}
+
+				else
+				{
+					var catList = new List<NoteBookModel>();
+					foreach (var cat in user)
+					{
+						var userData = new NoteBookModel();
+						userData.NoteBookId = cat.NoteBookId;
+						userData.Title = cat.Title;
+						userData.IconColor = cat.IconColor;
+						userData.UserId = cat.UserId;
+						
+						catList.Add(userData);
+					}
+
+					res.data = catList;
+					res.Status = true;
+					res.Message = "fetch successfully";
+				}
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.Message;
+			}
+
+			return Task.FromResult(res);
+		}
+
+		public async Task<GetNotesResModel> getNotes(GetTransReqModel req, int user_id)
+		{
+			var res = new GetNotesResModel();
+			if (req.pageNo < 1) req.pageNo = 1;
+			if (req.pageSize < 1) req.pageSize = 10;
+			try
+			{
+				var query = _context.Notes.AsQueryable();
+				query = query.Where(i => i.UserId == user_id);
+				//query = query.Where(i => i.Date >= req.startDate && i.Date <= req.endDate);
+				if (req.categoryId > 0)
+				{
+					query = query.Where(i => i.NoteBookId == req.categoryId);
+				}
+
+				var totalRecords = await query.CountAsync();
+				var totalPages = (int)Math.Ceiling(totalRecords / (double)req.pageSize);
+
+				var incomes = await query
+					.OrderBy(i => i.CreatedAt)  // Sorting by CreatedAt (ascending order)
+					.Skip((req.pageNo - 1) * req.pageSize)  // Skip items based on page number
+					.Take(req.pageSize)  // Take the specified page size
+					.ToListAsync();
+
+				var catList = new List<NoteDataModel>();
+				foreach (var cat in incomes)
+				{
+					var userData = new NoteDataModel();
+					userData.NoteId = cat.NoteId;
+					userData.Title = cat.Title;
+					userData.Details = cat.Details;
+					userData.CreatedAt = cat.CreatedAt;
+					userData.NoteBookId = cat.NoteBookId;
+					userData.UserId = cat.UserId;
+					catList.Add(userData);
+				}
+
+				res.data = catList;
+
+				res.TotalPage = totalPages;
+				res.Status = true;
+				res.Message = "fetch successfully";
+
 			}
 			catch (Exception ex)
 			{
