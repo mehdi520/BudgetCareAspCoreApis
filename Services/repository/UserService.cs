@@ -657,7 +657,9 @@ namespace BudgetCareApis.Services.repository
 			try
 			{
 
-				var user = _context.NoteBooks.Where(x => x.UserId == user_id).ToList();
+				var user = _context.NoteBooks.Where(x => x.UserId == user_id)
+					.Include(x=> x.Notes)
+					.ToList();
 
 				if (user == null)
 				{
@@ -675,6 +677,7 @@ namespace BudgetCareApis.Services.repository
 						userData.Title = cat.Title;
 						userData.IconColor = cat.IconColor;
 						userData.UserId = cat.UserId;
+						userData.TotalNotes = cat.Notes.Count;
 						
 						catList.Add(userData);
 					}
@@ -714,7 +717,8 @@ namespace BudgetCareApis.Services.repository
 				var incomes = await query
 					.OrderBy(i => i.CreatedAt)  // Sorting by CreatedAt (ascending order)
 					.Skip((req.pageNo - 1) * req.pageSize)  // Skip items based on page number
-					.Take(req.pageSize)  // Take the specified page size
+					.Take(req.pageSize)
+					.Include(x=> x.NoteBook)// Take the specified page size
 					.ToListAsync();
 
 				var catList = new List<NoteDataModel>();
@@ -726,6 +730,7 @@ namespace BudgetCareApis.Services.repository
 					userData.Details = cat.Details;
 					userData.CreatedAt = cat.CreatedAt;
 					userData.NoteBookId = cat.NoteBookId;
+					userData.NoteBookName = cat.NoteBook.Title;
 					userData.UserId = cat.UserId;
 					catList.Add(userData);
 				}

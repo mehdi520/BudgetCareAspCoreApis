@@ -13,5 +13,7 @@
 		public string Title { get; set; } = null!;
 
 		public string Details { get; set; } = null!;
+
+		public string NoteBookName { get; set; } = null!;
 	}
 }
