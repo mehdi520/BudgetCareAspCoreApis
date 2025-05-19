@@ -4,6 +4,7 @@ using BudgetCareApis.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BudgetCareApis.Data.Migrations
 {
     [DbContext(typeof(BudgetCareDBContext))]
-    partial class BudgetCareDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250519074300_AnalyzeTempTableAdded")]
+    partial class AnalyzeTempTableAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -125,25 +128,6 @@ namespace BudgetCareApis.Data.Migrations
                     b.ToTable("Category", (string)null);
                 });
 
-            modelBuilder.Entity("BudgetCareApis.Data.Entities.DrawAnalyze", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Json")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("json");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DrawAnalyze", (string)null);
-                });
-
             modelBuilder.Entity("BudgetCareApis.Data.Entities.DrawWinsBond", b =>
                 {
                     b.Property<int>("Id")
@@ -153,10 +137,8 @@ namespace BudgetCareApis.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BoundNo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                    b.Property<int>("BoundNo")
+                        .HasColumnType("int")
                         .HasColumnName("bound_no");
 
                     b.Property<int>("DrawId")

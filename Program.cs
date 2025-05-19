@@ -21,6 +21,7 @@
 		})
 		);
 
+
 	// Add DbContext with SQL Server connection string.
 	builder.Services.AddDbContext<BudgetCareDBContext>(options =>
 	{
@@ -56,10 +57,11 @@
 
 	// Add scoped services for repositories and services.
 	builder.Services.AddScoped<IUserService, UserService>();
+	builder.Services.AddScoped<IBondService, BondService>();
 
-	// Add services to the container.
+// Add services to the container.
 
-	builder.Services.AddControllers();
+builder.Services.AddControllers();
 	// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 	builder.Services.AddEndpointsApiExplorer();
 	builder.Services.AddSwaggerGen();

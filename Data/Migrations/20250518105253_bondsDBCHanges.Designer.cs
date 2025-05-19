@@ -4,6 +4,7 @@ using BudgetCareApis.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BudgetCareApis.Data.Migrations
 {
     [DbContext(typeof(BudgetCareDBContext))]
-    partial class BudgetCareDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250518105253_bondsDBCHanges")]
+    partial class bondsDBCHanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,65 +24,6 @@ namespace BudgetCareApis.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("BudgetCareApis.Data.Entities.BondsDraw", b =>
-                {
-                    b.Property<int>("DrawId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("draw_id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DrawId"));
-
-                    b.Property<DateTime>("DrawDate")
-                        .HasColumnType("datetime")
-                        .HasColumnName("draw_date");
-
-                    b.Property<int>("DrawNo")
-                        .HasColumnType("int")
-                        .HasColumnName("draw_no");
-
-                    b.Property<string>("FirstPrizeWorth")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("first_prize_worth");
-
-                    b.Property<int>("ScheduleId")
-                        .HasColumnType("int")
-                        .HasColumnName("schedule_id");
-
-                    b.Property<string>("SecondPrizeWorth")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("second_prize_worth");
-
-                    b.Property<string>("ThirdPrizeWorth")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("third_prize_worth");
-
-                    b.HasKey("DrawId");
-
-                    b.ToTable("BondsDraws");
-                });
-
-            modelBuilder.Entity("BudgetCareApis.Data.Entities.BondsRecordsYear", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("Year")
-                        .HasColumnType("int")
-                        .HasColumnName("year");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BondsRecordsYear", (string)null);
-                });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.Category", b =>
                 {
@@ -123,53 +67,6 @@ namespace BudgetCareApis.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Category", (string)null);
-                });
-
-            modelBuilder.Entity("BudgetCareApis.Data.Entities.DrawAnalyze", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Json")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("json");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DrawAnalyze", (string)null);
-                });
-
-            modelBuilder.Entity("BudgetCareApis.Data.Entities.DrawWinsBond", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BoundNo")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("bound_no");
-
-                    b.Property<int>("DrawId")
-                        .HasColumnType("int")
-                        .HasColumnName("draw_id");
-
-                    b.Property<int>("Position")
-                        .HasColumnType("int")
-                        .HasColumnName("position");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DrawWinsBonds");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.Expense", b =>
@@ -329,54 +226,6 @@ namespace BudgetCareApis.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("NoteBook", (string)null);
-                });
-
-            modelBuilder.Entity("BudgetCareApis.Data.Entities.ScheduleBond", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Amount")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("amount");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime")
-                        .HasColumnName("date");
-
-                    b.Property<string>("Day")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("day");
-
-                    b.Property<bool>("IsAnnounced")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_announced");
-
-                    b.Property<bool>("IsPremium")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_premium");
-
-                    b.Property<string>("Place")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("place");
-
-                    b.Property<int>("YearId")
-                        .HasColumnType("int")
-                        .HasColumnName("year_id");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ScheduleBonds");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.User", b =>

@@ -21,7 +21,17 @@ public partial class BudgetCareDBContext : DbContext
 	}
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	=> optionsBuilder.UseSqlServer(_config.GetConnectionString("DefaultConnection"));
+
+
+	public virtual DbSet<BondsDraw> BondsDraws { get; set; }
+
+    public virtual DbSet<BondsRecordsYear> BondsRecordsYears { get; set; }
+
     public virtual DbSet<Category> Categories { get; set; }
+
+    public virtual DbSet<DrawAnalyze> DrawAnalyzes { get; set; }
+
+    public virtual DbSet<DrawWinsBond> DrawWinsBonds { get; set; }
 
     public virtual DbSet<Expense> Expenses { get; set; }
 
@@ -31,11 +41,40 @@ public partial class BudgetCareDBContext : DbContext
 
     public virtual DbSet<NoteBook> NoteBooks { get; set; }
 
+    public virtual DbSet<ScheduleBond> ScheduleBonds { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
- 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<BondsDraw>(entity =>
+        {
+            entity.HasKey(e => e.DrawId);
+
+            entity.Property(e => e.DrawId).HasColumnName("draw_id");
+            entity.Property(e => e.DrawDate)
+                .HasColumnType("datetime")
+                .HasColumnName("draw_date");
+            entity.Property(e => e.DrawNo).HasColumnName("draw_no");
+            entity.Property(e => e.FirstPrizeWorth).HasColumnName("first_prize_worth");
+            entity.Property(e => e.ScheduleId).HasColumnName("schedule_id");
+            entity.Property(e => e.SecondPrizeWorth).HasColumnName("second_prize_worth");
+            entity.Property(e => e.ThirdPrizeWorth).HasColumnName("third_prize_worth");
+
+            entity.HasOne(d => d.Schedule).WithMany(p => p.BondsDraws)
+                .HasForeignKey(d => d.ScheduleId)
+                .HasConstraintName("FK_BondsDraws_ScheduleBonds");
+        });
+
+        modelBuilder.Entity<BondsRecordsYear>(entity =>
+        {
+            entity.ToTable("BondsRecordsYear");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Year).HasColumnName("year");
+        });
+
         modelBuilder.Entity<Category>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Category__3213E83F5E9A4269");
@@ -61,6 +100,28 @@ public partial class BudgetCareDBContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Categories)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__Category__userId__4D5F7D71");
+        });
+
+        modelBuilder.Entity<DrawAnalyze>(entity =>
+        {
+            entity.ToTable("DrawAnalyze");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Json).HasColumnName("json");
+        });
+
+        modelBuilder.Entity<DrawWinsBond>(entity =>
+        {
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.BoundNo)
+                .HasMaxLength(50)
+                .HasColumnName("bound_no");
+            entity.Property(e => e.DrawId).HasColumnName("draw_id");
+            entity.Property(e => e.Position).HasColumnName("position");
+
+            entity.HasOne(d => d.Draw).WithMany(p => p.DrawWinsBonds)
+                .HasForeignKey(d => d.DrawId)
+                .HasConstraintName("FK_DrawWinsBonds_BondsDraws");
         });
 
         modelBuilder.Entity<Expense>(entity =>
@@ -146,6 +207,30 @@ public partial class BudgetCareDBContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_NoteBook_User");
+        });
+
+        modelBuilder.Entity<ScheduleBond>(entity =>
+        {
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Amount)
+                .HasMaxLength(50)
+                .HasColumnName("amount");
+            entity.Property(e => e.Date)
+                .HasColumnType("datetime")
+                .HasColumnName("date");
+            entity.Property(e => e.Day)
+                .HasMaxLength(50)
+                .HasColumnName("day");
+            entity.Property(e => e.IsAnnounced).HasColumnName("is_announced");
+            entity.Property(e => e.IsPremium).HasColumnName("is_premium");
+            entity.Property(e => e.Place)
+                .HasMaxLength(50)
+                .HasColumnName("place");
+            entity.Property(e => e.YearId).HasColumnName("year_id");
+
+            entity.HasOne(d => d.Year).WithMany(p => p.ScheduleBonds)
+                .HasForeignKey(d => d.YearId)
+                .HasConstraintName("FK_ScheduleBonds_BondsRecordsYear");
         });
 
         modelBuilder.Entity<User>(entity =>
