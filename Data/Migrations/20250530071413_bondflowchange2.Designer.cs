@@ -4,6 +4,7 @@ using BudgetCareApis.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BudgetCareApis.Data.Migrations
 {
     [DbContext(typeof(BudgetCareDBContext))]
-    partial class BudgetCareDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250530071413_bondflowchange2")]
+    partial class bondflowchange2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,23 +66,22 @@ namespace BudgetCareApis.Data.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("draw_date");
 
-                    b.Property<int?>("DrawNo")
+                    b.Property<int>("DrawNo")
                         .HasColumnType("int")
                         .HasColumnName("draw_no");
 
                     b.Property<string>("FirstPrizeWorth")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("first_prize_worth");
 
-                    b.Property<bool>("IsResultAnnounced")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_result_announced");
-
                     b.Property<string>("SecondPrizeWorth")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("second_prize_worth");
 
                     b.Property<string>("ThirdPrizeWorth")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("third_prize_worth");
 

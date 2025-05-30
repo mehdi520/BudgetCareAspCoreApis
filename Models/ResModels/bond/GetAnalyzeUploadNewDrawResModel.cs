@@ -6,6 +6,12 @@ namespace BudgetCareApis.Models.ResModels.bond
 {
 	public class GetAnalyzeUploadNewDrawResModel : BaseResponseModel
 	{
-        public DrawAnalyze data { get; set; }
+
+		public int totalBonds { get; set; }
+		public int totalFirst { get; set; }
+		public int totalSecond { get; set; }
+		public int totalThird { get; set; }
+
+		public DrawAnalyze data { get; set; }
     }
 }

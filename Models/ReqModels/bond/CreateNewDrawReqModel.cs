@@ -5,7 +5,6 @@ namespace BudgetCareApis.Models.ReqModels.bond
 {
 	public class CreateNewDrawReqModel
 	{
-		public int scheduleId { get; set; }
 		public int draw_id { get; set; }
 
 		public DateTime draw_date { get; set; }

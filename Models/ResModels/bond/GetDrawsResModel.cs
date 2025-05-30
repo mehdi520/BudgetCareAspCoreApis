@@ -3,8 +3,8 @@ using BudgetCareApis.Models.ResModels.Base;
 
 namespace BudgetCareApis.Models.ResModels.bond
 {
-	public class GetRecordAvailYearsResModel : BaseResponseModel
+	public class GetDrawsResModel : BaseResponseModel
 	{
-        public List<RecordAvailYearsDataModel> data { get; set; }
+        public List<DrawDataModel> data { get; set; }
     }
 }
