@@ -55,120 +55,148 @@ namespace BudgetCareApis.Controllers
 			return Ok(res);
 		}
 
+	
+
 		//[HttpPost]
 		//public async Task<IActionResult> AnalyzeUploadNewDrawResult([FromForm] CreateNewDrawReqModel req)
 		//{
 		//	var res = new GetAnalyzeUploadNewDrawResModel();
 
-		//	if (req.draw_no < 1)
+		//	try
 		//	{
-		//		res.Status = false;
-		//		res.Message = "Draw number is required.";
-		//	}
-		//	else if (req.scheduleId < 1)
-		//	{
-		//		res.Status = false;
-		//		res.Message = "Bond Type is required.";
-		//	}
-		//	else if (req.draw_date == DateTime.MinValue)
-		//	{
-		//		res.Status = false;
-		//		res.Message = "Draw date is required.";
-		//	}
-		//	else if (string.IsNullOrWhiteSpace(req.first_prize_worth))
-		//	{
-		//		res.Status = false;
-		//		res.Message = "First prize worth is required.";
-		//	}
-		//	else if (string.IsNullOrWhiteSpace(req.second_prize_worth))
-		//	{
-		//		res.Status = false;
-		//		res.Message = "Second prize worth is required.";
-		//	}
-		//	else if (string.IsNullOrWhiteSpace(req.third_prize_worth))
-		//	{
-		//		res.Status = false;
-		//		res.Message = "Third prize worth is required.";
-		//	}
-		//	else if (req.file == null || req.file.Length == 0)
-		//	{
-		//		res.Status = false;
-		//		res.Message = "File is required.";
-		//	}
-		//	else
-		//	{
-		//		using var reader = new StreamReader(req.file.OpenReadStream());
-		//		var content = await reader.ReadToEndAsync();
-
-		//		// First prize (must be exactly 6 digits)
-		//		var firstPrizeMatch = Regex.Match(content, @"First Prize.*?\n(\d{6})", RegexOptions.Singleline);
-		//		var firstPrize = firstPrizeMatch.Success ? firstPrizeMatch.Groups[1].Value : null;
-
-		//		if (string.IsNullOrWhiteSpace(firstPrize))
+		//		// Input validation
+		//		if (req.draw_no < 1)
 		//		{
 		//			res.Status = false;
-		//			res.Message = "Valid first prize bond number (6 digits) not found.";
-		//			return Ok(res);
+		//			res.Message = "Draw number is required.";
 		//		}
+		//		else if (req.draw_id < 1)
+		//		{
+		//			res.Status = false;
+		//			res.Message = "Draw Id is required.";
+		//		}
+		//		else if (req.draw_date == DateTime.MinValue)
+		//		{
+		//			res.Status = false;
+		//			res.Message = "Draw date is required.";
+		//		}
+		//		else if (string.IsNullOrWhiteSpace(req.first_prize_worth))
+		//		{
+		//			res.Status = false;
+		//			res.Message = "First prize worth is required.";
+		//		}
+		//		else if (string.IsNullOrWhiteSpace(req.second_prize_worth))
+		//		{
+		//			res.Status = false;
+		//			res.Message = "Second prize worth is required.";
+		//		}
+		//		else if (string.IsNullOrWhiteSpace(req.third_prize_worth))
+		//		{
+		//			res.Status = false;
+		//			res.Message = "Third prize worth is required.";
+		//		}
+		//		else if (req.file == null || req.file.Length == 0)
+		//		{
+		//			res.Status = false;
+		//			res.Message = "File is required.";
+		//		}
+		//		else
+		//		{
+		//			// Excel file processing
+		//			using var stream = req.file.OpenReadStream();
+		//			using var workbook = new ClosedXML.Excel.XLWorkbook(stream);
+		//			var worksheet = workbook.Worksheets.First();
 
-		//		// Second prize numbers (extract and filter only 6-digit)
-		//		var secondMatch = Regex.Match(content, @"Second Prize.*?\n([\d\s\t\r\n]+)", RegexOptions.Singleline);
-		//		var secondNumbers = secondMatch.Success
-		//			? secondMatch.Groups[1].Value
-		//				.Replace("\r", "")
-		//				.Replace("\n", "")
-		//				.Split(new[] { '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries)
-		//				.Where(x => Regex.IsMatch(x, @"^\d{6}$"))
-		//				.Distinct()
-		//				.ToList()
-		//			: new List<string>();
+		//			string firstPrize = null;
+		//			var secondPrizes = new List<string>();
+		//			var allSixDigitNumbers = new HashSet<string>();
 
-		//		// All 6-digit numbers in the file
-		//		var allBonds = Regex.Matches(content, @"\b\d{6}\b")
-		//			.Select(m => m.Value)
-		//			.Distinct()
-		//			.ToList();
-
-		//		// Third prize numbers (exclude first and second)
-		//		var thirdNumbers = allBonds
-		//			.Except(secondNumbers)
-		//			.Where(x => x != firstPrize)
-		//			.ToList();
-
-		//		// Build bond list safely
-		//		req.bonds = new List<DrawWinsBondDataModel>();
-
-
-		//		req.bonds.Add(new DrawWinsBondDataModel { BoundNo = firstPrize, Position = 1 });
-
-		//		req.bonds.AddRange(
-		//			secondNumbers
-		//				.Where(x => int.TryParse(x, out _))
-		//				.Select(x => new DrawWinsBondDataModel
+		//			foreach (var row in worksheet.RowsUsed())
+		//			{
+		//				foreach (var cell in row.Cells())
 		//				{
-		//					BoundNo = x,
-		//					Position = 2
-		//				})
-		//		);
+		//					var cellValue = cell.GetFormattedString().Trim();
 
-		//		req.bonds.AddRange(
-		//			thirdNumbers
-		//				.Where(x => int.TryParse(x, out _))
-		//				.Select(x => new DrawWinsBondDataModel
-		//				{
-		//					BoundNo = x,
-		//					Position = 3
-		//				})
-		//		);
+		//					// Match exact 6-digit values including leading zeroes
+		//					if (Regex.IsMatch(cellValue, @"^\d{6}$"))
+		//					{
+		//						allSixDigitNumbers.Add(cellValue);
+		//					}
+		//					else if (cellValue.Contains("1 Prize of 1st", StringComparison.OrdinalIgnoreCase))
+		//					{
+		//						var nextRow = row.RowBelow();
+		//						firstPrize = nextRow?.CellsUsed()
+		//							.Select(c => c.GetFormattedString().Trim())
+		//							.FirstOrDefault(val => Regex.IsMatch(val, @"^\d{6}$"));
+		//					}
+		//					else if (cellValue.Contains("2nd Winner", StringComparison.OrdinalIgnoreCase))
+		//					{
+		//						var nextRow = row.RowBelow();
+		//						var prizeValues = nextRow?.CellsUsed()
+		//							.Select(c => c.GetFormattedString().Trim())
+		//							.Where(val => Regex.IsMatch(val, @"^\d{6}$"))
+		//							.ToList();
 
-		//		req.file = null;
+		//						if (prizeValues != null)
+		//							secondPrizes.AddRange(prizeValues);
+		//					}
+		//				}
+		//			}
 
-		//		res = await _bondService.analyzeUploadNewDrawResult(req);
+		//			if (string.IsNullOrWhiteSpace(firstPrize))
+		//			{
+		//				res.Status = false;
+		//				res.Message = "Valid first prize bond number (6 digits) not found.";
+		//				return Ok(res);
+		//			}
+
+		//			// Third prizes = all valid 6-digit numbers excluding first and second prizes
+		//			var thirdPrizes = allSixDigitNumbers
+		//				.Except(secondPrizes)
+		//				.Where(x => x != firstPrize)
+		//				.ToList();
+
+		//			req.bonds = new List<DrawWinsBondDataModel>();
+
+		//			// Add first prize
+		//			req.bonds.Add(new DrawWinsBondDataModel
+		//			{
+		//				BoundNo = firstPrize,
+		//				Position = 1
+		//			});
+
+		//			// Add second prizes
+		//			req.bonds.AddRange(
+		//				secondPrizes.Distinct()
+		//					.Select(x => new DrawWinsBondDataModel
+		//					{
+		//						BoundNo = x,
+		//						Position = 2
+		//					}));
+
+		//			// Add third prizes
+		//			req.bonds.AddRange(
+		//				thirdPrizes
+		//					.Select(x => new DrawWinsBondDataModel
+		//					{
+		//						BoundNo = x,
+		//						Position = 3
+		//					}));
+
+		//			req.file = null; // Clear uploaded file reference
+
+		//			// Call your analysis service
+		//			res = await _bondService.analyzeUploadNewDrawResult(req);
+		//		}
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		res.Status = false;
+		//		res.Message = ex.ToString();
 		//	}
 
 		//	return Ok(res);
 		//}
-
 
 		[HttpPost]
 		public async Task<IActionResult> AnalyzeUploadNewDrawResult([FromForm] CreateNewDrawReqModel req)
@@ -220,7 +248,7 @@ namespace BudgetCareApis.Controllers
 					using var workbook = new ClosedXML.Excel.XLWorkbook(stream);
 					var worksheet = workbook.Worksheets.First();
 
-					string firstPrize = null;
+					var firstPrizes = new List<string>();
 					var secondPrizes = new List<string>();
 					var allSixDigitNumbers = new HashSet<string>();
 
@@ -230,53 +258,72 @@ namespace BudgetCareApis.Controllers
 						{
 							var cellValue = cell.GetFormattedString().Trim();
 
-							// Match exact 6-digit values including leading zeroes
+							// Collect all 6-digit numbers
 							if (Regex.IsMatch(cellValue, @"^\d{6}$"))
 							{
 								allSixDigitNumbers.Add(cellValue);
 							}
-							else if (cellValue.Contains("1 Prize of 1st", StringComparison.OrdinalIgnoreCase))
+							else if ((cellValue.Contains("1 Prize of 1st", StringComparison.OrdinalIgnoreCase)) || cellValue.Contains("2 Prize of 1st", StringComparison.OrdinalIgnoreCase))
 							{
-								var nextRow = row.RowBelow();
-								firstPrize = nextRow?.CellsUsed()
-									.Select(c => c.GetFormattedString().Trim())
-									.FirstOrDefault(val => Regex.IsMatch(val, @"^\d{6}$"));
+								var currentRow = row.RowBelow();
+								while (currentRow != null && currentRow.CellsUsed().Any())
+								{
+									var prizeValues = currentRow.CellsUsed()
+										.Select(c => c.GetFormattedString().Trim())
+										.Where(val => Regex.IsMatch(val, @"^\d{6}$"))
+										.ToList();
+
+									if (prizeValues.Any())
+										firstPrizes.AddRange(prizeValues);
+									else
+										break;
+
+									currentRow = currentRow.RowBelow();
+								}
 							}
 							else if (cellValue.Contains("2nd Winner", StringComparison.OrdinalIgnoreCase))
 							{
-								var nextRow = row.RowBelow();
-								var prizeValues = nextRow?.CellsUsed()
-									.Select(c => c.GetFormattedString().Trim())
-									.Where(val => Regex.IsMatch(val, @"^\d{6}$"))
-									.ToList();
+								var currentRow = row.RowBelow();
+								while (currentRow != null && currentRow.CellsUsed().Any())
+								{
+									var prizeValues = currentRow.CellsUsed()
+										.Select(c => c.GetFormattedString().Trim())
+										.Where(val => Regex.IsMatch(val, @"^\d{6}$"))
+										.ToList();
 
-								if (prizeValues != null)
-									secondPrizes.AddRange(prizeValues);
+									if (prizeValues.Any())
+										secondPrizes.AddRange(prizeValues);
+									else
+										break;
+
+									currentRow = currentRow.RowBelow();
+								}
 							}
 						}
 					}
 
-					if (string.IsNullOrWhiteSpace(firstPrize))
+					if (firstPrizes.Count == 0)
 					{
 						res.Status = false;
-						res.Message = "Valid first prize bond number (6 digits) not found.";
+						res.Message = "Valid first prize bond numbers (6 digits) not found.";
 						return Ok(res);
 					}
 
-					// Third prizes = all valid 6-digit numbers excluding first and second prizes
+					// Third prizes = all 6-digit numbers excluding first and second prizes
 					var thirdPrizes = allSixDigitNumbers
+						.Except(firstPrizes)
 						.Except(secondPrizes)
-						.Where(x => x != firstPrize)
 						.ToList();
 
 					req.bonds = new List<DrawWinsBondDataModel>();
 
-					// Add first prize
-					req.bonds.Add(new DrawWinsBondDataModel
-					{
-						BoundNo = firstPrize,
-						Position = 1
-					});
+					// Add first prizes
+					req.bonds.AddRange(
+						firstPrizes.Select(x => new DrawWinsBondDataModel
+						{
+							BoundNo = x,
+							Position = 1
+						}));
 
 					// Add second prizes
 					req.bonds.AddRange(
@@ -312,7 +359,6 @@ namespace BudgetCareApis.Controllers
 		}
 
 
-
 		[HttpGet]
 		public async Task<IActionResult> ImportDrawResult(int id)
 		{
@@ -327,6 +373,77 @@ namespace BudgetCareApis.Controllers
 		{
 			var res = new GetDrawResultResModel();
 			res = await _bondService.getDrawResult(id);
+			return Ok(res);
+
+		}
+
+		[Authorize]
+		[HttpGet]
+		public async Task<IActionResult> GetUserBonds(int typeId)
+		{
+			var res = new GetBondsResModel();
+			var loginuserId = getLoggedinUserId();
+			res = await _bondService.getUserBonds(loginuserId,typeId);
+			return Ok(res);
+
+		}
+
+		[Authorize]
+		[HttpPost]
+		public async Task<IActionResult> AddUpdateUserBond(BondDataModel req)
+		{
+			var res = new BaseResponseModel();
+			var loginuserId = getLoggedinUserId();
+			res = await _bondService.addUpdateUserBond(loginuserId, req);
+			return Ok(res);
+
+		}
+
+		[Authorize]
+		[HttpGet]
+		public async Task<IActionResult> DeleteUserBond(int bondId )
+		{
+			var res = new BaseResponseModel();
+			var loginuserId = getLoggedinUserId();
+
+			res = await _bondService.deleteUserBond(loginuserId, bondId);
+			return Ok(res);
+
+		}
+
+
+
+		[HttpGet]
+		public async Task<IActionResult> DrawWinCheckSyncByDraw(int drawId)
+		{
+			var res = new BaseResponseModel();
+			var loginuserId = getLoggedinUserId();
+
+			res = await _bondService.DrawWinCheckSyncByDraw(drawId);
+			return Ok(res);
+
+		}
+
+		[Authorize]
+		[HttpGet]
+		public async Task<IActionResult> GetUserWonBonds(string status)
+		{
+			var res = new GetUserWonBondsResModel();
+			var loginuserId = getLoggedinUserId();
+
+			res = await _bondService.GetUserWonBonds(loginuserId,status);
+			return Ok(res);
+
+		}
+
+		[Authorize]
+		[HttpGet]
+		public async Task<IActionResult> UpdateUserWonBondStatus(string status, int wonId)
+		{
+			var res = new BaseResponseModel();
+			var loginuserId = getLoggedinUserId();
+
+			res = await _bondService.UpdateUserWonBondStatus(loginuserId, status, wonId);
 			return Ok(res);
 
 		}

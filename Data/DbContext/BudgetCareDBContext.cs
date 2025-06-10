@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BudgetCareApis.Data;
 
-
 public partial class BudgetCareDBContext : DbContext
 {
 	private readonly IConfiguration _config;
@@ -22,6 +21,7 @@ public partial class BudgetCareDBContext : DbContext
 	}
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	=> optionsBuilder.UseSqlServer(_config.GetConnectionString("DefaultConnection"));
+
 
 	public virtual DbSet<BondType> BondTypes { get; set; }
 
@@ -43,7 +43,10 @@ public partial class BudgetCareDBContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
- 
+    public virtual DbSet<UserBond> UserBonds { get; set; }
+
+    public virtual DbSet<UserWonBond> UserWonBonds { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BondType>(entity =>
@@ -245,6 +248,66 @@ public partial class BudgetCareDBContext : DbContext
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("updatedAt");
+        });
+
+        modelBuilder.Entity<UserBond>(entity =>
+        {
+            entity.HasKey(e => e.BondId);
+
+            entity.Property(e => e.BondId).HasColumnName("bond_id");
+            entity.Property(e => e.BondNumber)
+                .HasMaxLength(10)
+                .IsFixedLength()
+                .HasColumnName("bond_number");
+            entity.Property(e => e.BondType).HasColumnName("bond_type");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.BondTypeNavigation).WithMany(p => p.UserBonds)
+                .HasForeignKey(d => d.BondType)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserBonds_BondTypes");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserBonds)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_UserBonds_User");
+        });
+
+        modelBuilder.Entity<UserWonBond>(entity =>
+        {
+            entity.HasKey(e => e.WonId);
+
+            entity.Property(e => e.WonId).HasColumnName("won_id");
+            entity.Property(e => e.BondId).HasColumnName("bond_id");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+            entity.Property(e => e.DrawId).HasColumnName("draw_id");
+            entity.Property(e => e.Position).HasColumnName("position");
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasColumnName("status");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("updated_at");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.Bond).WithMany(p => p.UserWonBonds)
+                .HasForeignKey(d => d.BondId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserWonBonds_UserBonds");
+
+            entity.HasOne(d => d.Draw).WithMany(p => p.UserWonBonds)
+                .HasForeignKey(d => d.DrawId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserWonBonds_BondsDraws");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserWonBonds)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_UserWonBonds_User");
         });
 
         OnModelCreatingPartial(modelBuilder);

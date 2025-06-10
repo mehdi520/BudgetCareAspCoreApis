@@ -28,4 +28,6 @@ public partial class BondsDraw
     public virtual BondType BondType { get; set; } = null!;
 
     public virtual ICollection<DrawWinsBond> DrawWinsBonds { get; set; } = new List<DrawWinsBond>();
+
+    public virtual ICollection<UserWonBond> UserWonBonds { get; set; } = new List<UserWonBond>();
 }

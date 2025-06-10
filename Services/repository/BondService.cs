@@ -7,6 +7,7 @@ using BudgetCareApis.Models.ResModels;
 using BudgetCareApis.Models.ResModels.Base;
 using BudgetCareApis.Models.ResModels.bond;
 using BudgetCareApis.Services.services;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -238,70 +239,6 @@ namespace BudgetCareApis.Services.repository
 		}
 
 	
-		//public async Task<BaseResponseModel> importDrawResult(int id)
-		//{
-		//	var res = new BaseResponseModel();
-		//	try
-		//	{
-		//		var drawdataJson = _context.DrawAnalyzes.Find(id);
-		//		if (drawdataJson != null)
-		//		{
-					
-		//			CreateNewDrawReqModel drawData = JsonConvert.DeserializeObject<CreateNewDrawReqModel>(drawdataJson.Json);
-		//			var existingDraw = _context.BondsDraws.Where(x => x.DrawId == drawData.draw_id).FirstOrDefault();
-		//			if (existingDraw != null)
-		//			{
-		//				//_context.Database.ExecuteSqlRawAsync("DELETE FROM BondsDraws where draw_id=" + existingDraw.DrawId);
-		//			  await	_context.Database.ExecuteSqlRawAsync("DELETE FROM DrawWinsBonds where draw_id=" + existingDraw.DrawId);
-
-
-		//				existingDraw.DrawNo = drawData.draw_no;
-		//				//draw.ScheduleId = drawData.scheduleId;
-		//				existingDraw.DrawDate = drawData.draw_date;
-		//				existingDraw.FirstPrizeWorth = drawData.first_prize_worth;
-		//				existingDraw.SecondPrizeWorth = drawData.second_prize_worth;
-		//				existingDraw.ThirdPrizeWorth = drawData.third_prize_worth;
-		//				existingDraw.IsResultAnnounced = true;
-
-		//				_context.SaveChanges();
-
-		//				foreach (var item in drawData.bonds)
-		//				{
-		//					var bond = new DrawWinsBond();
-		//					bond.BoundNo = item.BoundNo;
-		//					bond.Position = item.Position;
-		//					bond.DrawId = existingDraw.DrawId;
-
-		//					_context.DrawWinsBonds.Add(bond);
-
-		//				}
-		//				await _context.SaveChangesAsync(); // ✅ Save all in bulk
-
-		//				res.Status = true;
-		//				res.Message = "Imported successfully";
-
-		//				await _context.Database.ExecuteSqlRawAsync("DELETE FROM DrawAnalyze");
-		//			}
-		//			else
-		//			{
-		//				res.Status = false;
-		//				res.Message = "Draw not found. Please create draw first";
-		//			}
-		//		}
-		//		else
-		//		{
-		//			res.Status = false;
-		//			res.Message = "No Anayzed Draw found.";
-		//		}
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		res.Status = false;
-		//		res.Message = ex.Message;
-		//	}
-
-		//	return res;
-		//}
 		public async Task<BaseResponseModel> importDrawResult(int id)
 		{
 			var res = new BaseResponseModel();
@@ -401,6 +338,337 @@ namespace BudgetCareApis.Services.repository
 			return res;
 		}
 
+		public Task<GetBondsResModel> getUserBonds(int userId, int typeId)
+		{ 
+			var res = new GetBondsResModel();
+			try { 
 
+				List<UserBond> userBonds = new List<UserBond>();
+
+				if (typeId > 0)
+				{
+					userBonds = _context.UserBonds.Where(x => x.UserId == userId && x.IsDeleted == false && x.BondType == typeId).ToList();
+
+				}
+				else
+				{
+					userBonds = _context.UserBonds.Where(x => x.UserId == userId && x.IsDeleted == false).ToList();
+
+				}
+				var list = new List<BondDataModel>();
+				foreach (var item in userBonds)
+				{
+					var bond = new BondDataModel();
+					bond.UserId = item.UserId;
+					bond.BondNumber = item.BondNumber;
+					bond.BondType = item.BondType;
+					bond.BondId = item.BondId;
+					bond.CreatedAt = item.CreatedAt;
+					list.Add(bond);
+				}
+
+				res.Status = true;
+				res.data = list;
+				res.Message = "Bond list";
+			}
+			catch (Exception ex) { 
+				res.Status = false;
+				res.Message = ex.Message;
+			
+			}
+
+			return Task.FromResult(res);
+		}
+
+		public Task<BaseResponseModel> addUpdateUserBond(int userId, BondDataModel req)
+		{
+			var res = new BaseResponseModel();
+			try
+			{
+				if (req.BondId > 0)
+				{
+					var bond = _context.UserBonds.Where(x=>x.UserId == userId && x.BondId == req.BondId && x.IsDeleted == false).FirstOrDefault();
+					if (bond != null)
+					{
+						var isExist = _context.UserBonds.Where(x => x.UserId == userId && x.IsDeleted == false && x.BondNumber == req.BondNumber && x.BondId != req.BondId).FirstOrDefault();
+						if (isExist != null)
+						{
+							res.Status = false;
+							res.Message = "Bond number already exist";
+						}
+						else
+						{
+							
+							bond.BondType = req.BondType;
+							bond.BondNumber = req.BondNumber;
+							bond.CreatedAt = DateTime.Now;
+							bond.UserId = userId;
+							bond.IsDeleted = false;
+							_context.SaveChanges();
+
+							res.Status = true;
+							res.Message = "Bond updated successfully";
+						}
+
+					}
+					else
+					{
+						res.Status = false;
+						res.Message = "Bond not found";
+					}
+				}
+				else
+				{
+					var isExist = _context.UserBonds.Where(x => x.UserId == userId && x.IsDeleted == false && x.BondType == req.BondType && x.BondNumber == req.BondNumber).FirstOrDefault();
+					if (isExist != null)
+					{
+						res.Status = false;
+						res.Message = "Bond number already exist";
+					}
+					else
+					{
+						var bond = new UserBond();
+						bond.BondType = req.BondType;
+						bond.BondNumber = req.BondNumber;
+						bond.CreatedAt = DateTime.Now;
+						bond.UserId = userId;
+						bond.IsDeleted = false;
+
+						_context.UserBonds.Add(bond);
+						_context.SaveChanges();
+
+						res.Status = true;
+						res.Message = "Bond saved successfully";
+					}
+				
+				}
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.Message;
+
+			}
+
+			return Task.FromResult(res);
+		}
+
+		public Task<BaseResponseModel> deleteUserBond(int userId, int bondId)
+		{
+			var res = new BaseResponseModel();
+			try
+			{
+
+				var bond = _context.UserBonds.Where(y => y.UserId == userId && y.IsDeleted == false && y.BondId == bondId).FirstOrDefault();
+				if (bond != null)
+				{
+					bond.IsDeleted = true;
+					_context.SaveChanges();
+					res.Status = true;
+					res.Message = "Bond deleted successfully";
+
+				}
+				else
+				{
+					res.Status = false;
+					res.Message = "Bond nt found";
+				}
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.Message;
+
+			}
+
+			return Task.FromResult(res);
+		}
+
+		public async Task<BaseResponseModel> DrawWinCheckSyncByDraw(int drawId)
+		{
+			var res = new BaseResponseModel();
+			try
+			{
+				
+					// 1. Get the draw details
+					var draw = await _context.BondsDraws
+						.Include(d => d.DrawWinsBonds)
+						.FirstOrDefaultAsync(d => d.DrawId == drawId);
+
+					if (draw == null)
+					{
+						res.Status = false;
+						res.Message = "Draw not found.";
+						return res;
+					}
+
+					// 2. Get winning bond numbers for this draw
+					var winningBonds = draw.DrawWinsBonds.Select(wb => new { wb.BoundNo, wb.Position }).ToList();
+
+					if (!winningBonds.Any())
+					{
+						res.Status = false;
+						res.Message = "No winning bonds for this draw.";
+						return res;
+					}
+
+					// 3. Get all user bonds that match this draw's bond type
+					var userBonds = await _context.UserBonds
+						.Where(ub => ub.BondType == draw.BondTypeId && !ub.IsDeleted)
+						.ToListAsync();
+
+					var currentTime = DateTime.UtcNow;
+
+				// 4. Compare user bonds with winning bonds
+				foreach (var userBond in userBonds)
+				{
+					// Find *all* win matches (though ideally only one should exist per bond number)
+					var matchedWins = winningBonds
+						.Where(w => w.BoundNo.Trim() == userBond.BondNumber.Trim())
+						.ToList();
+
+					foreach (var matchedWin in matchedWins)
+					{
+						// Check if this specific user-win entry already exists
+						bool alreadyExists = await _context.UserWonBonds.AnyAsync(uwb =>
+							uwb.BondId == userBond.BondId &&
+							uwb.DrawId == drawId &&
+							uwb.UserId == userBond.UserId &&
+							uwb.Position == matchedWin.Position);
+
+						if (!alreadyExists)
+						{
+							var wonBond = new UserWonBond
+							{
+								BondId = userBond.BondId,
+								DrawId = drawId,
+								UserId = userBond.UserId,
+								Position = matchedWin.Position,
+								Status = "Pending",
+								CreatedAt = currentTime,
+								UpdatedAt = currentTime
+							};
+
+							await _context.UserWonBonds.AddAsync(wonBond);
+						}
+					}
+				}
+
+				await _context.SaveChangesAsync();
+
+					res.Status = true;
+					res.Message = "User bond wins synced successfully.";
+				
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = $"Error: {ex.Message}";
+			}
+
+			return res;
+		}
+
+		public Task<GetUserWonBondsResModel> GetUserWonBonds(int userId, string status)
+		{
+			var res = new GetUserWonBondsResModel();
+			try
+			{
+
+				var bonds = _context.UserWonBonds.Where(y => y.UserId == userId && y.Status == status)
+					.Include(x=>x.Bond)
+					.Include(x=>x.Draw)
+					.ThenInclude(d => d.BondType)
+					.ToList();
+				var list = new List<WonBondDataModel>();
+				foreach (var item in bonds)
+				{
+					var bond = new WonBondDataModel();
+					bond.Status = item.Status;
+					bond.WonId = item.WonId;
+					bond.BondId = item.BondId;
+					bond.CreatedAt = item.CreatedAt;
+					bond.UpdatedAt = item.UpdatedAt;
+					bond.DrawId = item.DrawId;
+					bond.Position = item.Position;
+					if (item.Bond != null)
+					{
+						var bondData = new BondDataModel();
+						bondData.BondId = item.Bond.BondId;
+						bondData.BondNumber = item.Bond.BondNumber;
+						bondData.BondType = item.Bond.BondType;
+						bondData.CreatedAt = item.Bond.CreatedAt;
+
+						bond.Bond = bondData;
+						
+					}
+
+					if (item.Draw != null)
+					{
+						var drawData = new DrawDataModel();
+
+						drawData.DrawId = item.Draw.DrawId;
+						drawData.BondTypeId = item.Draw.BondTypeId;
+						drawData.BondType = item.Draw.BondType.BondType1;
+						drawData.Place = item.Draw.Place;
+
+						drawData.Day = item.Draw.Day;
+						drawData.DrawDate = item.Draw.DrawDate;
+						drawData.DrawNo = item.Draw.DrawNo;
+						drawData.FirstPrizeWorth = item.Draw.FirstPrizeWorth;
+						drawData.SecondPrizeWorth = item.Draw.SecondPrizeWorth;
+						drawData.ThirdPrizeWorth = item.Draw.ThirdPrizeWorth;
+
+						bond.Draw = drawData;
+					}
+
+
+					list.Add(bond);
+				}
+				res.Status = true;
+				res.data = list;
+				res.Message = "";
+				
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.Message;
+
+			}
+
+			return Task.FromResult(res);
+		}
+
+		public Task<BaseResponseModel> UpdateUserWonBondStatus(int userId, string status, int wonId)
+		{
+			var res = new BaseResponseModel();
+			try
+			{
+
+				var bond = _context.UserWonBonds.Where(y => y.UserId == userId && y.WonId == wonId ).FirstOrDefault();
+				if (bond != null)
+				{
+					bond.Status = status;
+					_context.SaveChanges();
+					res.Status = true;
+					res.Message = "Bond updated successfully";
+
+				}
+				else
+				{
+					res.Status = false;
+					res.Message = "Bond not found";
+				}
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.Message;
+
+			}
+
+			return Task.FromResult(res);
+		}
 	}
 }

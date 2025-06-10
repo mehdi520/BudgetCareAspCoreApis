@@ -26,4 +26,8 @@ public partial class User
     public virtual ICollection<NoteBook> NoteBooks { get; set; } = new List<NoteBook>();
 
     public virtual ICollection<Note> Notes { get; set; } = new List<Note>();
+
+    public virtual ICollection<UserBond> UserBonds { get; set; } = new List<UserBond>();
+
+    public virtual ICollection<UserWonBond> UserWonBonds { get; set; } = new List<UserWonBond>();
 }

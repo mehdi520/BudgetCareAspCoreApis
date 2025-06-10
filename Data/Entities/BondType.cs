@@ -12,4 +12,6 @@ public partial class BondType
     public bool IsPermium { get; set; }
 
     public virtual ICollection<BondsDraw> BondsDraws { get; set; } = new List<BondsDraw>();
+
+    public virtual ICollection<UserBond> UserBonds { get; set; } = new List<UserBond>();
 }
