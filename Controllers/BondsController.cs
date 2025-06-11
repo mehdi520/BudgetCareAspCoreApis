@@ -447,5 +447,17 @@ namespace BudgetCareApis.Controllers
 			return Ok(res);
 
 		}
+
+		[Authorize]
+		[HttpGet]
+		public async Task<IActionResult> GetUserBondsSummary()
+		{
+			var res = new GetUserBondSummaryResModel();
+			var loginuserId = getLoggedinUserId();
+
+			res = await _bondService.GetUserBondsSummary(loginuserId);
+			return Ok(res);
+
+		}
 	}
 }

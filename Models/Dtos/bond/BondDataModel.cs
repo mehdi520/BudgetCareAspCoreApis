@@ -9,6 +9,7 @@ namespace BudgetCareApis.Models.Dtos.bond
 		public string BondNumber { get; set; } = null!;
 
 		public int BondType { get; set; }
+		public string? BondTypeName { get; set; }
 
 		public DateTime? CreatedAt { get; set; }
 

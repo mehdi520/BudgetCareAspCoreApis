@@ -22,8 +22,8 @@ namespace BudgetCareApis.Services.services
 		Task<BaseResponseModel> DrawWinCheckSyncByDraw(int drawId);
 		Task<GetUserWonBondsResModel> GetUserWonBonds(int userId, string status);
 		Task<BaseResponseModel> UpdateUserWonBondStatus(int userId, string status, int wonId);
+		Task<GetUserBondSummaryResModel> GetUserBondsSummary(int userId);
 
-		
 
 
 

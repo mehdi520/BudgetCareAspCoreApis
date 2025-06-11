@@ -347,12 +347,13 @@ namespace BudgetCareApis.Services.repository
 
 				if (typeId > 0)
 				{
-					userBonds = _context.UserBonds.Where(x => x.UserId == userId && x.IsDeleted == false && x.BondType == typeId).ToList();
+					userBonds = _context.UserBonds.Where(x => x.UserId == userId && x.IsDeleted == false && x.BondType == typeId)
+						.Include(x=>x.BondTypeNavigation).ToList();
 
 				}
 				else
 				{
-					userBonds = _context.UserBonds.Where(x => x.UserId == userId && x.IsDeleted == false).ToList();
+					userBonds = _context.UserBonds.Where(x => x.UserId == userId && x.IsDeleted == false).Include(x => x.BondTypeNavigation).ToList();
 
 				}
 				var list = new List<BondDataModel>();
@@ -362,6 +363,7 @@ namespace BudgetCareApis.Services.repository
 					bond.UserId = item.UserId;
 					bond.BondNumber = item.BondNumber;
 					bond.BondType = item.BondType;
+					bond.BondTypeName = item.BondTypeNavigation.BondType1;
 					bond.BondId = item.BondId;
 					bond.CreatedAt = item.CreatedAt;
 					list.Add(bond);
@@ -401,7 +403,7 @@ namespace BudgetCareApis.Services.repository
 							
 							bond.BondType = req.BondType;
 							bond.BondNumber = req.BondNumber;
-							bond.CreatedAt = DateTime.Now;
+							bond.CreatedAt = req.CreatedAt ?? DateTime.Now;
 							bond.UserId = userId;
 							bond.IsDeleted = false;
 							_context.SaveChanges();
@@ -430,7 +432,7 @@ namespace BudgetCareApis.Services.repository
 						var bond = new UserBond();
 						bond.BondType = req.BondType;
 						bond.BondNumber = req.BondNumber;
-						bond.CreatedAt = DateTime.Now;
+						bond.CreatedAt = req.CreatedAt ?? DateTime.Now;
 						bond.UserId = userId;
 						bond.IsDeleted = false;
 
@@ -670,5 +672,48 @@ namespace BudgetCareApis.Services.repository
 
 			return Task.FromResult(res);
 		}
+
+		public Task<GetUserBondSummaryResModel> GetUserBondsSummary(int userId)
+		{
+			var res = new GetUserBondSummaryResModel
+			{
+				data = new UserBondSummaryDataModel()
+			};
+
+			try
+			{
+				// Get user's non-deleted bonds with BondType navigation loaded
+				var userBonds = _context.UserBonds
+					.Where(x => x.UserId == userId && !x.IsDeleted)
+					.Include(x => x.BondTypeNavigation) // Ensure BondType is loaded
+					.ToList();
+
+				// Group and summarize by BondType
+				var bondSummaryList = userBonds
+					.GroupBy(b => new { b.BondTypeNavigation.TypeId, b.BondTypeNavigation.BondType1 })
+					.Select(g => new UserBondCountByType
+					{
+						bondType = g.Key.BondType1,
+						bondCount = g.Count(),
+						bondWorth = g.Count() * 100 // Example fixed worth per bond
+					}).ToList();
+
+				res.data.bonds = bondSummaryList;
+				res.data.TotalBond = bondSummaryList.Sum(b => b.bondCount);
+				res.data.TotalWorth = bondSummaryList.Sum(b => b.bondWorth);
+				res.Status = true;
+				res.Message = "Success";
+			}
+			catch (Exception ex)
+			{
+				res.Status = false;
+				res.Message = ex.Message;
+			}
+
+			return Task.FromResult(res);
+		}
+
+
+
 	}
 }
