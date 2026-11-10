@@ -26,7 +26,9 @@
 	// Add DbContext with SQL Server connection string.
 	builder.Services.AddDbContext<BudgetCareDBContext>(options =>
 	{
-		options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+		// Migrations history always in dbo (not the login's default schema).
+		options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+			sql => sql.MigrationsHistoryTable("__EFMigrationsHistory", "dbo"));
 		// Uncomment for lazy loading proxies if needed
 		// options.UseLazyLoadingProxies(true);
 	});

@@ -17,6 +17,7 @@ namespace BudgetCareApis.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("dbo")
                 .HasAnnotation("ProductVersion", "10.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -43,7 +44,7 @@ namespace BudgetCareApis.Data.Migrations
 
                     b.HasKey("TypeId");
 
-                    b.ToTable("BondTypes");
+                    b.ToTable("BondTypes", "dbo");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.BondsDraw", b =>
@@ -97,7 +98,7 @@ namespace BudgetCareApis.Data.Migrations
 
                     b.HasIndex("BondTypeId");
 
-                    b.ToTable("BondsDraws");
+                    b.ToTable("BondsDraws", "dbo");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.Category", b =>
@@ -141,7 +142,7 @@ namespace BudgetCareApis.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Category", (string)null);
+                    b.ToTable("Category", "dbo");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.DrawAnalyze", b =>
@@ -160,7 +161,7 @@ namespace BudgetCareApis.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DrawAnalyze", (string)null);
+                    b.ToTable("DrawAnalyze", "dbo");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.DrawWinsBond", b =>
@@ -190,7 +191,7 @@ namespace BudgetCareApis.Data.Migrations
 
                     b.HasIndex("DrawId");
 
-                    b.ToTable("DrawWinsBonds");
+                    b.ToTable("DrawWinsBonds", "dbo");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.Expense", b =>
@@ -234,7 +235,7 @@ namespace BudgetCareApis.Data.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Expense__3213E83F74EAE88D");
 
-                    b.ToTable("Expense", (string)null);
+                    b.ToTable("Expense", "dbo");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.Income", b =>
@@ -278,7 +279,7 @@ namespace BudgetCareApis.Data.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Income__3213E83F3D73790A");
 
-                    b.ToTable("Income", (string)null);
+                    b.ToTable("Income", "dbo");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.Note", b =>
@@ -318,7 +319,7 @@ namespace BudgetCareApis.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notes");
+                    b.ToTable("Notes", "dbo");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.NoteAttachment", b =>
@@ -372,7 +373,7 @@ namespace BudgetCareApis.Data.Migrations
 
                     b.HasIndex(new[] { "NoteId" }, "IX_NoteAttachment_note_id");
 
-                    b.ToTable("NoteAttachment", (string)null);
+                    b.ToTable("NoteAttachment", "dbo");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.NoteBook", b =>
@@ -403,7 +404,7 @@ namespace BudgetCareApis.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("NoteBook", (string)null);
+                    b.ToTable("NoteBook", "dbo");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.User", b =>
@@ -455,7 +456,7 @@ namespace BudgetCareApis.Data.Migrations
                     b.HasKey("Id")
                         .HasName("PK__User__3213E83F99B72138");
 
-                    b.ToTable("User", (string)null);
+                    b.ToTable("User", "dbo");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.UserBond", b =>
@@ -496,7 +497,7 @@ namespace BudgetCareApis.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserBonds");
+                    b.ToTable("UserBonds", "dbo");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.UserWonBond", b =>
@@ -546,7 +547,7 @@ namespace BudgetCareApis.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserWonBonds");
+                    b.ToTable("UserWonBonds", "dbo");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.BondsDraw", b =>

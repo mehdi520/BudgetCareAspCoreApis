@@ -20,7 +20,11 @@ public partial class BudgetCareDBContext : DbContext
 
 	}
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-	=> optionsBuilder.UseSqlServer(_config.GetConnectionString("DefaultConnection"));
+	{
+		if (!optionsBuilder.IsConfigured)
+			optionsBuilder.UseSqlServer(_config.GetConnectionString("DefaultConnection"),
+				sql => sql.MigrationsHistoryTable("__EFMigrationsHistory", "dbo"));
+	}
 
 
 	public virtual DbSet<BondType> BondTypes { get; set; }
@@ -51,6 +55,10 @@ public partial class BudgetCareDBContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Always use dbo. Without this, SQL Server uses the login's default schema
+        // (e.g. the "mehdi" login -> mehdi.User), which created duplicate tables.
+        modelBuilder.HasDefaultSchema("dbo");
+
         modelBuilder.Entity<BondType>(entity =>
         {
             entity.HasKey(e => e.TypeId);
