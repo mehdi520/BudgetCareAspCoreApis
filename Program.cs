@@ -76,11 +76,20 @@ builder.Services.AddControllers();
 
 	var app = builder.Build();
 
-	// Make sure the attachments folder exists: {root}/uploads/notes
+	// Try to create the attachments folder: {root}/uploads/notes.
+	// Never fatal: on hosts where the site folder is read-only this must not stop the app
+	// (uploads will then report the permission error instead).
 	{
 		var uploadsRoot = app.Configuration.GetValue<string>("Uploads:RootPath");
 		if (string.IsNullOrWhiteSpace(uploadsRoot)) uploadsRoot = app.Environment.ContentRootPath;
-		Directory.CreateDirectory(Path.Combine(uploadsRoot, NoteService.UploadsFolder, NoteService.NotesFolder));
+		try
+		{
+			Directory.CreateDirectory(Path.Combine(uploadsRoot, NoteService.UploadsFolder, NoteService.NotesFolder));
+		}
+		catch (Exception ex)
+		{
+			app.Logger.LogWarning(ex, "Could not create uploads folder under {Root}. Give the app pool write permission to it.", uploadsRoot);
+		}
 	}
 
 	app.UseCors("AllowAll");
