@@ -42,12 +42,12 @@ namespace BudgetCareApis.Controllers
 		public async Task<IActionResult> updateProfile(UserViewModel req)
 		{
 			var res = new BaseResponseModel();
-			if (req.Name.IsNullOrEmpty())
+			if (string.IsNullOrEmpty(req.Name))
 			{
 				res.Status = false;
 				res.Message = "Name is required";
 			}
-			else if (req.Phone.IsNullOrEmpty())
+			else if (string.IsNullOrEmpty(req.Phone))
 			{
 				res.Status = false;
 				res.Message = "Phone is required";
@@ -66,12 +66,12 @@ namespace BudgetCareApis.Controllers
 		public async Task<IActionResult> changePass(ChnagePassReqModel req)
 		{
 			var res = new BaseResponseModel();
-			if (req.oldPass.IsNullOrEmpty())
+			if (string.IsNullOrEmpty(req.oldPass))
 			{
 				res.Status = false;
 				res.Message = "Current password is required";
 			}
-			else if (req.newPass.IsNullOrEmpty())
+			else if (string.IsNullOrEmpty(req.newPass))
 			{
 				res.Status = false;
 				res.Message = "New Password is required";

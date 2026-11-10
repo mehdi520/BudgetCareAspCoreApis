@@ -1,5 +1,6 @@
 ﻿using BudgetCareApis.Models.Dtos.Category;
 using BudgetCareApis.Models.Dtos.Notes;
+using BudgetCareApis.Models.ReqModels.Notes;
 using BudgetCareApis.Models.ResModels;
 using BudgetCareApis.Models.ResModels.Base;
 using BudgetCareApis.Models.ResModels.Notes;
@@ -16,14 +17,16 @@ namespace BudgetCareApis.Controllers
 	public class CategoryController : BaseController
 	{
 		private IUserService _userService;
+		private readonly INoteService _noteService;
 
 		private readonly ILogger<PubController> _logger;
 		private readonly IConfiguration Configuration;
 
-		public CategoryController(ILogger<PubController> logger, IUserService user, IConfiguration configuration, IWebHostEnvironment webHostEnvironment) : base(configuration, webHostEnvironment)
+		public CategoryController(ILogger<PubController> logger, IUserService user, INoteService noteService, IConfiguration configuration, IWebHostEnvironment webHostEnvironment) : base(configuration, webHostEnvironment)
 		{
 			_logger = logger;
 			_userService = user;
+			_noteService = noteService;
 			Configuration = configuration;
 		}
 
@@ -57,31 +60,34 @@ namespace BudgetCareApis.Controllers
 
 
 
+		// ---------------- Notebooks (Smart Notes) ----------------
+
+		/// <summary>
+		/// User's notebooks with note counts.
+		/// Optional: pageNo/pageSize for paging (pageNo = 0 returns all), search filters by title.
+		/// Response includes currentPage, pageSize, totalPage, totalCount.
+		/// </summary>
 		[HttpGet]
-		public async Task<IActionResult> GetUserNotesCats()
+		public async Task<IActionResult> GetUserNotesCats(int pageNo = 0, int pageSize = 10, string? search = null)
 		{
-			var res = new GetUserNoteBookResModel();
-			var loginuserId = getLoggedinUserId();
-			res = await _userService.getNoteCatagories(loginuserId);
+			var req = new GetNoteBooksReqModel { pageNo = pageNo, pageSize = pageSize, search = search };
+			var res = await _noteService.GetNoteBooks(req, getLoggedinUserId());
 			return Ok(res);
 		}
 
+		/// <summary>Deletes a notebook with all of its notes and their attachment files.</summary>
 		[HttpGet]
 		public async Task<IActionResult> delNoteCat(int catId)
 		{
-			var res = new BaseResponseModel();
-			//var loginuserId = getLoggedinUserId();
-			res = await _userService.delNoteCatagory(catId);
+			var res = await _noteService.DeleteNoteBook(catId, getLoggedinUserId());
 			return Ok(res);
 		}
 
 		[HttpPost]
 		public async Task<IActionResult> addOrUpdateNoteCat(NoteBookModel req)
 		{
-			var res = new BaseResponseModel();
-			var loginuserId = getLoggedinUserId();
-			req.UserId = loginuserId;
-			res = await _userService.addUpdateNoteCatagories(req);
+			req.UserId = getLoggedinUserId();
+			var res = await _noteService.AddUpdateNoteBook(req);
 			return Ok(res);
 		}
 

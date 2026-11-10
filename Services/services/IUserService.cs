@@ -24,14 +24,8 @@ namespace BudgetCareApis.Services.services
 		Task<BaseResponseModel> delCatagory(int cat_id );
 
 
-		Task<GetUserNoteBookResModel> getNoteCatagories(int user_id);
-		Task<BaseResponseModel> addUpdateNoteCatagories(NoteBookModel req);
-		Task<BaseResponseModel> delNoteCatagory(int note_id);
 
 
-		Task<GetNotesResModel> getNotes(GetTransReqModel req, int user_id);
-		Task<BaseResponseModel> addUpdateNote(NoteDataModel req);
-		Task<BaseResponseModel> delNote(int note_id);
 
 
 

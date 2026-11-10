@@ -1,2 +1,8 @@
 bin/
 obj/
+
+# Note attachments (user files)
+uploads/
+
+# Visual Studio local cache
+.vs/

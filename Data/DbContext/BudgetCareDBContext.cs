@@ -41,6 +41,8 @@ public partial class BudgetCareDBContext : DbContext
 
     public virtual DbSet<NoteBook> NoteBooks { get; set; }
 
+    public virtual DbSet<NoteAttachment> NoteAttachments { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserBond> UserBonds { get; set; }
@@ -201,6 +203,39 @@ public partial class BudgetCareDBContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Notes)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK_Notes_User");
+        });
+
+        modelBuilder.Entity<NoteAttachment>(entity =>
+        {
+            entity.HasKey(e => e.AttachmentId);
+            entity.ToTable("NoteAttachment");
+
+            entity.Property(e => e.AttachmentId).HasColumnName("attachment_id");
+            entity.Property(e => e.NoteId).HasColumnName("note_id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.FileName)
+                .HasMaxLength(255)
+                .HasColumnName("file_name");
+            entity.Property(e => e.FilePath)
+                .HasMaxLength(500)
+                .HasColumnName("file_path");
+            entity.Property(e => e.ContentType)
+                .HasMaxLength(150)
+                .HasColumnName("content_type");
+            entity.Property(e => e.FileSize).HasColumnName("file_size");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("updated_at");
+
+            entity.HasIndex(e => e.NoteId, "IX_NoteAttachment_note_id");
+
+            entity.HasOne(d => d.Note).WithMany(p => p.Attachments)
+                .HasForeignKey(d => d.NoteId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_NoteAttachment_Note");
         });
 
         modelBuilder.Entity<NoteBook>(entity =>

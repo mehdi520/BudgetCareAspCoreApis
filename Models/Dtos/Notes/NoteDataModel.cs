@@ -1,4 +1,4 @@
-﻿namespace BudgetCareApis.Models.Dtos.Notes
+namespace BudgetCareApis.Models.Dtos.Notes
 {
 	public class NoteDataModel
 	{
@@ -14,6 +14,10 @@
 
 		public string Details { get; set; } = null!;
 
-		public string NoteBookName { get; set; } = null!;
+		public string? NoteBookName { get; set; }
+
+		public int AttachmentCount { get; set; }
+
+		public List<NoteAttachmentModel>? Attachments { get; set; }
 	}
 }

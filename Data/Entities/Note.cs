@@ -20,4 +20,6 @@ public partial class Note
     public virtual NoteBook NoteBook { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
+
+    public virtual ICollection<NoteAttachment> Attachments { get; set; } = new List<NoteAttachment>();
 }

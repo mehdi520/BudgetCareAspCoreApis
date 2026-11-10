@@ -15,7 +15,8 @@
 			policy
 			.AllowAnyOrigin()
 			.AllowAnyMethod()
-			.AllowAnyHeader();
+			.AllowAnyHeader()
+			.WithExposedHeaders("Content-Disposition");
 			
 	
 		})
@@ -58,6 +59,13 @@
 	// Add scoped services for repositories and services.
 	builder.Services.AddScoped<IUserService, UserService>();
 	builder.Services.AddScoped<IBondService, BondService>();
+	builder.Services.AddScoped<INoteService, NoteService>();
+
+	// Note attachments: allow large multipart uploads (per-endpoint limits are on NoteController).
+	builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o =>
+	{
+		o.MultipartBodyLengthLimit = 200L * 1024 * 1024;
+	});
 
 // Add services to the container.
 
@@ -67,6 +75,14 @@ builder.Services.AddControllers();
 	builder.Services.AddSwaggerGen();
 
 	var app = builder.Build();
+
+	// Make sure the attachments folder exists: {root}/uploads/notes
+	{
+		var uploadsRoot = app.Configuration.GetValue<string>("Uploads:RootPath");
+		if (string.IsNullOrWhiteSpace(uploadsRoot)) uploadsRoot = app.Environment.ContentRootPath;
+		Directory.CreateDirectory(Path.Combine(uploadsRoot, NoteService.UploadsFolder, NoteService.NotesFolder));
+	}
+
 	app.UseCors("AllowAll");
 	// Configure the HTTP request pipeline.
 	if (app.Environment.IsDevelopment())

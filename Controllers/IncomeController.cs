@@ -55,7 +55,7 @@ namespace BudgetCareApis.Controllers
 				res.Status = false;
 				res.Message = "Amount is required";
 			}
-			else if (req.Desciption.IsNullOrEmpty())
+			else if (string.IsNullOrEmpty(req.Desciption))
 			{
 				res.Status = false;
 				res.Message = "Description is required";

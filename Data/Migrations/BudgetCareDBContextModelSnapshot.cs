@@ -17,7 +17,7 @@ namespace BudgetCareApis.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasAnnotation("ProductVersion", "10.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -321,6 +321,60 @@ namespace BudgetCareApis.Data.Migrations
                     b.ToTable("Notes");
                 });
 
+            modelBuilder.Entity("BudgetCareApis.Data.Entities.NoteAttachment", b =>
+                {
+                    b.Property<int>("AttachmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("attachment_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttachmentId"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("content_type");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("file_path");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint")
+                        .HasColumnName("file_size");
+
+                    b.Property<int>("NoteId")
+                        .HasColumnType("int")
+                        .HasColumnName("note_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("AttachmentId");
+
+                    b.HasIndex(new[] { "NoteId" }, "IX_NoteAttachment_note_id");
+
+                    b.ToTable("NoteAttachment", (string)null);
+                });
+
             modelBuilder.Entity("BudgetCareApis.Data.Entities.NoteBook", b =>
                 {
                     b.Property<int>("NoteBookId")
@@ -404,6 +458,97 @@ namespace BudgetCareApis.Data.Migrations
                     b.ToTable("User", (string)null);
                 });
 
+            modelBuilder.Entity("BudgetCareApis.Data.Entities.UserBond", b =>
+                {
+                    b.Property<int>("BondId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("bond_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BondId"));
+
+                    b.Property<string>("BondNumber")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .HasColumnName("bond_number")
+                        .IsFixedLength();
+
+                    b.Property<int>("BondType")
+                        .HasColumnType("int")
+                        .HasColumnName("bond_type");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("BondId");
+
+                    b.HasIndex("BondType");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserBonds");
+                });
+
+            modelBuilder.Entity("BudgetCareApis.Data.Entities.UserWonBond", b =>
+                {
+                    b.Property<int>("WonId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("won_id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WonId"));
+
+                    b.Property<int>("BondId")
+                        .HasColumnType("int")
+                        .HasColumnName("bond_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("DrawId")
+                        .HasColumnType("int")
+                        .HasColumnName("draw_id");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int")
+                        .HasColumnName("position");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("WonId");
+
+                    b.HasIndex("BondId");
+
+                    b.HasIndex("DrawId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserWonBonds");
+                });
+
             modelBuilder.Entity("BudgetCareApis.Data.Entities.BondsDraw", b =>
                 {
                     b.HasOne("BudgetCareApis.Data.Entities.BondType", "BondType")
@@ -459,6 +604,18 @@ namespace BudgetCareApis.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("BudgetCareApis.Data.Entities.NoteAttachment", b =>
+                {
+                    b.HasOne("BudgetCareApis.Data.Entities.Note", "Note")
+                        .WithMany("Attachments")
+                        .HasForeignKey("NoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_NoteAttachment_Note");
+
+                    b.Navigation("Note");
+                });
+
             modelBuilder.Entity("BudgetCareApis.Data.Entities.NoteBook", b =>
                 {
                     b.HasOne("BudgetCareApis.Data.Entities.User", "User")
@@ -470,14 +627,71 @@ namespace BudgetCareApis.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("BudgetCareApis.Data.Entities.UserBond", b =>
+                {
+                    b.HasOne("BudgetCareApis.Data.Entities.BondType", "BondTypeNavigation")
+                        .WithMany("UserBonds")
+                        .HasForeignKey("BondType")
+                        .IsRequired()
+                        .HasConstraintName("FK_UserBonds_BondTypes");
+
+                    b.HasOne("BudgetCareApis.Data.Entities.User", "User")
+                        .WithMany("UserBonds")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_UserBonds_User");
+
+                    b.Navigation("BondTypeNavigation");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BudgetCareApis.Data.Entities.UserWonBond", b =>
+                {
+                    b.HasOne("BudgetCareApis.Data.Entities.UserBond", "Bond")
+                        .WithMany("UserWonBonds")
+                        .HasForeignKey("BondId")
+                        .IsRequired()
+                        .HasConstraintName("FK_UserWonBonds_UserBonds");
+
+                    b.HasOne("BudgetCareApis.Data.Entities.BondsDraw", "Draw")
+                        .WithMany("UserWonBonds")
+                        .HasForeignKey("DrawId")
+                        .IsRequired()
+                        .HasConstraintName("FK_UserWonBonds_BondsDraws");
+
+                    b.HasOne("BudgetCareApis.Data.Entities.User", "User")
+                        .WithMany("UserWonBonds")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_UserWonBonds_User");
+
+                    b.Navigation("Bond");
+
+                    b.Navigation("Draw");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("BudgetCareApis.Data.Entities.BondType", b =>
                 {
                     b.Navigation("BondsDraws");
+
+                    b.Navigation("UserBonds");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.BondsDraw", b =>
                 {
                     b.Navigation("DrawWinsBonds");
+
+                    b.Navigation("UserWonBonds");
+                });
+
+            modelBuilder.Entity("BudgetCareApis.Data.Entities.Note", b =>
+                {
+                    b.Navigation("Attachments");
                 });
 
             modelBuilder.Entity("BudgetCareApis.Data.Entities.NoteBook", b =>
@@ -492,6 +706,15 @@ namespace BudgetCareApis.Data.Migrations
                     b.Navigation("NoteBooks");
 
                     b.Navigation("Notes");
+
+                    b.Navigation("UserBonds");
+
+                    b.Navigation("UserWonBonds");
+                });
+
+            modelBuilder.Entity("BudgetCareApis.Data.Entities.UserBond", b =>
+                {
+                    b.Navigation("UserWonBonds");
                 });
 #pragma warning restore 612, 618
         }
